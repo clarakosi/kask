@@ -1,6 +1,10 @@
 
 import abc
 
+from cassandra         import ConsistencyLevel
+from cassandra.cluster import Cluster
+from cassandra.query   import SimpleStatement
+
 
 class Store(abc.ABC):
     @abc.abstractmethod
@@ -37,3 +41,22 @@ class MockStore(Store):
     def close(self):
         pass
 
+class CassandraStore(Store):
+    def __init__(self, keyspace=None, table=None, contacts=None):
+        self.cluster = Cluster(contacts)
+        self.session = self.cluster.connect()
+
+    def get(self, key):
+        pass
+
+    def set(self, key, value):
+        pass
+
+    def delete(self, key):
+        pass
+
+    def close(self):
+        self.cluster.shutdown()
+
+    def _execute(self, query, query_args, consistency_level=ConsistencyLevel.LOCAL_QUORUM):
+        pass

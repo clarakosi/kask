@@ -22,3 +22,4 @@ For development:
     $ . kask/bin/activate
     $ pip install -r requirements.txt
     $ FLASK_APP=kask/index.py FLASK_DEBUG=1 flask run
+
