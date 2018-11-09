@@ -33,3 +33,9 @@ Reformating code using [black](https://pypi.org/project/black) (i.e. to *blacken
 
     $ black .
 
+Tests
+-----------
+To run the tests make sure the development server is running and then run:
+
+    $ python -m unittest tests/test*
+

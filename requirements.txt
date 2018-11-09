@@ -3,4 +3,4 @@ semantic_version==2.3.1
 cassandra-driver==3.7.1
 prometheus_client==0.0.18
 gunicorn==19.6.0
-black=18.9b0
+black==18.9b0
