@@ -22,4 +22,6 @@ For development:
     $ . kask/bin/activate
     $ pip install -r requirements.txt
     $ FLASK_APP=kask/index.py FLASK_DEBUG=1 flask run
+    $ # ...or alternatively...
+    $ gunicorn3 --reload -b 0.0.0.0:5000 kask.index:app
 
