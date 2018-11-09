@@ -22,3 +22,7 @@ For development:
     $ . kask/bin/activate
     $ pip install -r requirements.txt
     $ FLASK_APP=kask/index.py FLASK_DEBUG=1 flask run
+
+To run test make sure the development server is running and then run:
+
+    $ python -m unittest tests/test*
