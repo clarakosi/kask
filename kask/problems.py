@@ -1,10 +1,9 @@
-
 """
 Exceptions in support of RFC7807 HTTP responses (https://tools.ietf.org/html/rfc7807)
 """
 
-from abc    import ABCMeta, abstractmethod
-from flask  import jsonify
+from abc import ABCMeta, abstractmethod
+from flask import jsonify
 
 
 class HttpException(Exception):
@@ -14,17 +13,17 @@ class HttpException(Exception):
     @abstractmethod
     def type(self):
         pass
-    
+
     @property
     @abstractmethod
     def status(self):
         pass
-    
+
     @property
     @abstractmethod
     def title(self):
         pass
-    
+
     @property
     @abstractmethod
     def detail(self):
@@ -37,27 +36,29 @@ class HttpException(Exception):
 
     def __init__(self, *args, **kwargs):
         raise NotImplementedError()
-    
+
     def jsonify(self):
-        return jsonify(dict(type=self.type, title=self.title,
-                            detail=self.detail, instance=self.instance))
+        return jsonify(
+            dict(type=self.type, title=self.title, detail=self.detail, instance=self.instance)
+        )
 
     def response(self):
         return self.jsonify(), self.status
+
 
 class HttpNotFound(HttpException):
     @property
     def type(self):
         return "https://www.mediawiki.org/wiki/probs/not-found"
-    
+
     @property
     def status(self):
         return 404
-    
+
     @property
     def title(self):
         return "Not found"
-    
+
     @property
     def detail(self):
         return "The requested resource was not found"
@@ -73,7 +74,11 @@ class HttpNotFound(HttpException):
 
 class HttpBadRequest(HttpException):
     pass
+
+
 class HttpNotAuthorized(HttpException):
     pass
+
+
 class HttpInternalServerError(HttpException):
     pass

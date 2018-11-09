@@ -1,9 +1,8 @@
-
 import abc
 
-from cassandra         import ConsistencyLevel
+from cassandra import ConsistencyLevel
 from cassandra.cluster import Cluster
-from cassandra.query   import SimpleStatement
+from cassandra.query import SimpleStatement
 
 
 class Store(abc.ABC):
@@ -23,13 +22,16 @@ class Store(abc.ABC):
     def close(self):
         pass
 
+
 class MockStore(Store):
     def __init__(self):
         self._values = {}
 
     def get(self, key):
-        if key in self._values: return self._values[key]
-        else: return None
+        if key in self._values:
+            return self._values[key]
+        else:
+            return None
 
     def set(self, key, value):
         self._values[key] = value
@@ -40,6 +42,7 @@ class MockStore(Store):
 
     def close(self):
         pass
+
 
 class CassandraStore(Store):
     def __init__(self, keyspace=None, table=None, contacts=None):
