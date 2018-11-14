@@ -1,7 +1,7 @@
 from flask import Flask, jsonify, Response, request, abort
 from semantic_version import Version
 from .problems import HttpException, HttpNotFound
-from .storage import MockStore
+from .storage import MockStore, CassandraStore
 
 
 version = Version("1.0.0")
@@ -9,8 +9,8 @@ versioned = lambda p: "/v{}/{}".format(version.major, p.strip("/")).rstrip("/")
 
 app = Flask(__name__)
 app.config.from_object("kask.Config")
-store = MockStore()
-
+# store = MockStore()
+store = CassandraStore("kask", "session")
 
 @app.route(versioned("/<key>"), methods=["GET"])
 def get(key):
