@@ -1,3 +1,4 @@
+import os
 from flask import Flask, jsonify, Response, request, abort
 from semantic_version import Version
 from .problems import HttpException, HttpNotFound
@@ -9,8 +10,19 @@ versioned = lambda p: "/v{}/{}".format(version.major, p.strip("/")).rstrip("/")
 
 app = Flask(__name__)
 app.config.from_object("kask.Config")
-# store = MockStore()
-store = CassandraStore("kask", "session")
+
+
+def options(db):
+    if db == "cassandraStore":
+        return CassandraStore("kask", "session")
+    elif db == "cassandraTestStore":
+        return CassandraStore("test", "session")
+    return MockStore()
+
+
+ENVIRONMENT_STORE = os.environ.get("STORE", default="mockStore")
+
+store = options(ENVIRONMENT_STORE)
 
 @app.route(versioned("/<key>"), methods=["GET"])
 def get(key):

@@ -1,18 +1,18 @@
 import unittest
 import json
-from kask import index
+from kask import index, storage
 
 versioned = index.versioned
 test_key = "ea183235b39a4feba8980ff1c1393f2c"
 test_key_2 = "4460253a863a404da3d3ba28eb6cce89"
 
 
-class TestKask(unittest.TestCase):
+class TestKaskWithCassandra(unittest.TestCase):
     def setUp(self):
         self.app = index.app.test_client()
         self.app.put(versioned("/%s" % test_key_2),
-                     data=json.dumps(dict(value="sample value")),
-                     content_type='application/json')
+                    data=json.dumps(dict(value="sample value")),
+                    content_type='application/json')
 
     def tearDown(self):
         index.store.clear()

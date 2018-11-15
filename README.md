@@ -25,9 +25,18 @@ In a nutshell:
     ...
     $ . kask/bin/activate
     $ pip install -r requirements.txt
-    $ FLASK_APP=kask/index.py FLASK_DEBUG=1 flask run
+    $ FLASK_APP=kask/index.py FLASK_DEBUG=1 flask run 
+    
+    $ # ... run with Cassandra
+    $ FLASK_APP=kask/index.py FLASK_DEBUG=1 STORE=cassandraStore flask run
+    
     $ # ...or alternatively...
     $ gunicorn3 --reload -b 0.0.0.0:5000 kask.index:app
+    
+    $ # ... run with Cassandra and Gunicorn
+    $ STORE=cassandraStore gunicorn --reload -b 0.0.0.0:5000 kask.index:app
+
+    
 
 Reformating code using [black](https://pypi.org/project/black) (i.e. to *blacken*):
 
@@ -35,7 +44,11 @@ Reformating code using [black](https://pypi.org/project/black) (i.e. to *blacken
 
 Tests
 -----------
-In a nutshell:
+For unit tests:
 
     $ python -m unittest tests/test*
+
+For functional tests, you must first have Cassandra running. Then simply run:
+    
+    $ STORE=cassandraTestStore python -m unittest tests/functional_tests/test*
 
