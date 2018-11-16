@@ -55,14 +55,9 @@ class CassandraStore(Store):
     def __init__(self, keyspace=None, table=None, contacts=None):
         self.cluster = Cluster(contacts)
         self.session = self.cluster.connect()
-        self.location = "%s.%s" % (keyspace, table)
-        self.session.execute("""
-            CREATE KEYSPACE IF NOT EXISTS %s
-            WITH replication = { 'class': 'SimpleStrategy', 'replication_factor': '1' }
-            """ % (keyspace, ))
-        self.session.execute("DROP TABLE IF EXISTS %s" % (self.location, ))
-        self.session.execute("CREATE TABLE IF NOT EXISTS %s (key text PRIMARY KEY, value text)" %
-                             (self.location, ))
+        self.keyspace = keyspace
+        self.table = table
+        self.location = "%s.%s" % (self.keyspace, self.table)
 
     def get(self, key):
         query = "SELECT * FROM {0} WHERE key=%s".format(self.location)
@@ -77,12 +72,11 @@ class CassandraStore(Store):
         self._execute(query, (key, value))
 
     def delete(self, key):
-        query = "DELETE FROM {0} WHERE key=%s IF EXISTS".format(self.location)
+        query = "DELETE FROM {0} WHERE key=%s".format(self.location)
         self._execute(query, (key, ), ConsistencyLevel.QUORUM)
 
     def clear(self):
-        query = "TRUNCATE {0}".format(self.location)
-        self._execute(query, (), ConsistencyLevel.QUORUM)
+        pass
 
     def close(self):
         self.cluster.shutdown()

@@ -11,18 +11,28 @@ versioned = lambda p: "/v{}/{}".format(version.major, p.strip("/")).rstrip("/")
 app = Flask(__name__)
 app.config.from_object("kask.Config")
 
+store = None
 
 def options(db):
+    global store
     if db == "cassandraStore":
-        return CassandraStore("kask", "session")
+        store = CassandraStore("kask", "session")
+        store.session.execute("""
+            CREATE KEYSPACE IF NOT EXISTS %s
+            WITH replication = { 'class': 'SimpleStrategy', 'replication_factor': '1' }
+            """ % (store.keyspace, ))
+        store.session.execute("DROP TABLE IF EXISTS %s" % (store.location, ))
+        store.session.execute("CREATE TABLE IF NOT EXISTS %s (key text PRIMARY KEY, value text)" % (store.location, ))
+        return
     elif db == "cassandraTestStore":
-        return CassandraStore("test", "session")
-    return MockStore()
+        store = CassandraStore()
+        return
+    store = MockStore()
 
 
 ENVIRONMENT_STORE = os.environ.get("STORE", default="mockStore")
 
-store = options(ENVIRONMENT_STORE)
+options(ENVIRONMENT_STORE)
 
 @app.route(versioned("/<key>"), methods=["GET"])
 def get(key):

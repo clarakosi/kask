@@ -1,6 +1,5 @@
-import unittest
-import json
-from kask import index, storage
+import unittest, json, string, random
+from kask import index
 
 versioned = index.versioned
 test_key = "ea183235b39a4feba8980ff1c1393f2c"
@@ -10,12 +9,21 @@ test_key_2 = "4460253a863a404da3d3ba28eb6cce89"
 class TestKaskWithCassandra(unittest.TestCase):
     def setUp(self):
         self.app = index.app.test_client()
-        self.app.put(versioned("/%s" % test_key_2),
-                    data=json.dumps(dict(value="sample value")),
-                    content_type='application/json')
+        index.store.keyspace = "TEST_KEYSPACE_" + ''.join(random.choices(string.ascii_letters + string.digits, k=10))
+        index.store.table = "TEST_TABLE_" + ''.join(random.choices(string.ascii_letters + string.digits, k=10))
+        index.store.location = "%s.%s" % (index.store.keyspace, index.store.table)
+        index.store.session.execute("""
+            CREATE KEYSPACE IF NOT EXISTS %s
+            WITH replication = { 'class': 'SimpleStrategy', 'replication_factor': '1' }
+            """ % (index.store.keyspace, ))
+        index.store.session.execute("DROP TABLE IF EXISTS %s" % (index.store.location, ))
+        index.store.session.execute("CREATE TABLE %s (key text PRIMARY KEY, value text)"
+                                    % (index.store.location, ))
+        self.app.put(versioned("/%s" % test_key_2), data=json.dumps(dict(value="sample value")),
+                     content_type='application/json')
 
     def tearDown(self):
-        index.store.clear()
+        index.store.session.execute("""DROP KEYSPACE %s""" % (index.store.keyspace, ))
 
     def test_get_missing(self):
         """Fetches a non-existent key, and expects a 404"""
