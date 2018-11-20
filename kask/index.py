@@ -2,37 +2,19 @@ import os
 from flask import Flask, jsonify, Response, request, abort
 from semantic_version import Version
 from .problems import HttpException, HttpNotFound
-from .storage import MockStore, CassandraStore
-
 
 version = Version("1.0.0")
 versioned = lambda p: "/v{}/{}".format(version.major, p.strip("/")).rstrip("/")
+ENVIRONMENT = os.environ.get("ENV", default="Development")
 
 app = Flask(__name__)
 app.config.from_object("kask.Config")
+app.config.from_object("kask.{0}".format(ENVIRONMENT))
 
-store = None
+KASK_STORE = app.config["KASK_STORE"]
+KASK_STORE_ARGS = app.config["KASK_STORE_ARGS"]
 
-def options(db):
-    global store
-    if db == "cassandraStore":
-        store = CassandraStore("kask", "session")
-        store.session.execute("""
-            CREATE KEYSPACE IF NOT EXISTS %s
-            WITH replication = { 'class': 'SimpleStrategy', 'replication_factor': '1' }
-            """ % (store.keyspace, ))
-        store.session.execute("DROP TABLE IF EXISTS %s" % (store.location, ))
-        store.session.execute("CREATE TABLE IF NOT EXISTS %s (key text PRIMARY KEY, value text)" % (store.location, ))
-        return
-    elif db == "cassandraTestStore":
-        store = CassandraStore()
-        return
-    store = MockStore()
-
-
-ENVIRONMENT_STORE = os.environ.get("STORE", default="mockStore")
-
-options(ENVIRONMENT_STORE)
+store = KASK_STORE(*KASK_STORE_ARGS)
 
 @app.route(versioned("/<key>"), methods=["GET"])
 def get(key):

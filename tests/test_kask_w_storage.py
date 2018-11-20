@@ -15,7 +15,7 @@ class TestKask(unittest.TestCase):
                      content_type='application/json')
 
     def tearDown(self):
-        index.store.clear()
+        index.store.values = {}
 
     def test_get_missing(self):
         """Fetches a non-existent key, and expects a 404"""

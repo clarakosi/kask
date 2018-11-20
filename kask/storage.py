@@ -19,33 +19,26 @@ class Store(abc.ABC):
         pass
 
     @abc.abstractmethod
-    def clear(self):
-        pass
-
-    @abc.abstractmethod
     def close(self):
         pass
 
 
 class MockStore(Store):
     def __init__(self):
-        self._values = {}
+        self.values = {}
 
     def get(self, key):
-        if key in self._values:
-            return self._values[key]
+        if key in self.values:
+            return self.values[key]
         else:
             return None
 
     def set(self, key, value):
-        self._values[key] = value
+        self.values[key] = value
 
     def delete(self, key):
-        if key in self._values:
-            del self._values[key]
-
-    def clear(self):
-        self._values.clear()
+        if key in self.values:
+            del self.values[key]
 
     def close(self):
         pass
@@ -74,9 +67,6 @@ class CassandraStore(Store):
     def delete(self, key):
         query = "DELETE FROM {0} WHERE key=%s".format(self.location)
         self._execute(query, (key, ), ConsistencyLevel.QUORUM)
-
-    def clear(self):
-        pass
 
     def close(self):
         self.cluster.shutdown()

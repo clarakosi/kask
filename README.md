@@ -19,7 +19,13 @@ packages in Debian stable (Stretch at the time of writing).
 
 Development
 -----------
-In a nutshell:
+The development assumes that Cassandra is running and that  ``dev_keyspace.dev_table` exits.
+If not you can create the keyspace and table using the following commands in cqlsh:
+    
+    $ CREATE KEYSPACE dev_keyspace WITH replication = { 'class': 'SimpleStrategy', 'replication_factor': '1' }
+    $ CREATE TABLE dev_keyspace.dev_table (key text PRIMARY KEY, value text)
+    
+To start flask:
 
     $ virtualenv -p `which python3` kask
     ...
@@ -27,14 +33,8 @@ In a nutshell:
     $ pip install -r requirements.txt
     $ FLASK_APP=kask/index.py FLASK_DEBUG=1 flask run 
     
-    $ # ... run with Cassandra
-    $ FLASK_APP=kask/index.py FLASK_DEBUG=1 STORE=cassandraStore flask run
-    
     $ # ...or alternatively...
-    $ gunicorn3 --reload -b 0.0.0.0:5000 kask.index:app
-    
-    $ # ... run with Cassandra and Gunicorn
-    $ STORE=cassandraStore gunicorn --reload -b 0.0.0.0:5000 kask.index:app
+    $ gunicorn --reload -b 0.0.0.0:5000 kask.index:app
 
     
 
@@ -46,9 +46,9 @@ Tests
 -----------
 For unit tests:
 
-    $ python -m unittest tests/test*
+    $ ENV=MockTesting python -m unittest tests/test*
 
 For functional tests, you must first have Cassandra running. Then simply run:
     
-    $ STORE=cassandraTestStore python -m unittest tests/functional_tests/test*
+    $ ENV=CassandraTesting python -m unittest tests/functional_tests/test*
 

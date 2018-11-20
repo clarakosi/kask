@@ -1,4 +1,7 @@
-import unittest, json, string, random
+import unittest
+import json
+import string
+import random
 from kask import index
 
 versioned = index.versioned
