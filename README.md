@@ -19,7 +19,7 @@ packages in Debian stable (Stretch at the time of writing).
 
 Development
 -----------
-The development assumes that Cassandra is running and that  ``dev_keyspace.dev_table` exits.
+The development assumes that Cassandra is running and that  `dev_keyspace.dev_table` exits.
 If not you can create the keyspace and table using the following commands in cqlsh:
     
     $ CREATE KEYSPACE dev_keyspace WITH replication = { 'class': 'SimpleStrategy', 'replication_factor': '1' }
